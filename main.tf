@@ -17,7 +17,7 @@ data "aws_availability_zones" "azs" {}
 locals {
   tags = {
     Terraform   = "true"
-    Environment = "demo"
+    Environment = "${var.environment_name}"
     Application = "${var.application_name}"
   }
 }
@@ -42,4 +42,21 @@ module "vpc" {
   enable_dns_support           = true
 
   tags = "${local.tags}"
+}
+
+#########################################
+# ECS Cluster and cluster level resources
+#########################################
+module "ecs_cluster" {
+  source = "./modules/ecs_cluster"
+
+  application_name    = "${var.application_name}"
+  environment_name    = "${var.environment_name}"
+  vpc_id              = "${module.vpc.vpc_id}"
+  subnet_ids          = "${module.vpc.private_subnets}"
+  ecs_servers         = "${var.ecs_servers}"
+  ecs_min_servers     = "${var.ecs_min_servers}"
+  ecs_max_servers     = "${var.ecs_max_servers}"
+  ecs_instance_type   = "${var.ecs_instance_type}"
+  public_key_filename = "${var.public_key_filename}"
 }

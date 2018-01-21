@@ -1,11 +1,6 @@
 #########
 # General
 #########
-variable "region" {
-  description = "AWS Region"
-  default     = "us-east-2"
-}
-
 variable "application_name" {
   description = "The Application Name"
   default     = "2tier"
@@ -16,9 +11,23 @@ variable "environment_name" {
   default     = "demo"
 }
 
-#############
-# ECS Cluster
-#############
+############
+# Networking
+############
+variable "vpc_id" {
+  description = "The VPC Id to deploy the cluster"
+  default     = ""
+}
+
+variable "subnet_ids" {
+  description = "The list of the Subnet Ids to deploy the EC2 instances"
+  default     = []
+  type        = "list"
+}
+
+#######################
+# EC2 AutoScaling Group
+#######################
 variable "ecs_servers" {
   description = "The number of default servers in the ECS Cluster"
   default     = 2
