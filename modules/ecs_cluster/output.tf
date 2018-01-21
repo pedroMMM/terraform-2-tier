@@ -11,15 +11,10 @@ output "ecs_cluster_name" {
   value       = "${format("%s-cluster", var.application_name)}"
 }
 
-#######################
-# ECS Cluster AIM Roles
-#######################
+######################
+# ECS Cluster AIM Role
+######################
 output "ecs_service_role_arn" {
   description = "The ARN of the ECS Service Role"
   value       = "${aws_iam_role.ecs_service_role.arn}"
-}
-
-output "ecs_service_autoscale_role_arn" {
-  description = "The ARN of the ECS Service Autoscaling Role"
-  value       = "${aws_iam_role.ecs_service_autoscale_role.arn}"
 }

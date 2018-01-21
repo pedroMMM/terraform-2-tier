@@ -3,7 +3,7 @@
 #########
 variable "application_name" {
   description = "The Application Name"
-  default     = "2tier"
+  default     = "twotier"
 }
 
 variable "environment_name" {

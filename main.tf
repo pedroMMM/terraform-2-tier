@@ -29,19 +29,16 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 1.15.0"
 
-  name = "${format("%s-vpc", var.application_name)}"
-  cidr = "10.0.0.0/16"
-
-  azs              = ["${data.aws_availability_zones.azs.names}"]
-  private_subnets  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets   = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
-  database_subnets = ["10.10.21.0/24", "10.10.22.0/24", "10.10.23.0/24"]
-
+  name                         = "${format("%s-vpc", var.application_name)}"
+  cidr                         = "${var.vpc_cidr}"
+  azs                          = ["${data.aws_availability_zones.azs.names}"]
+  private_subnets              = ["${var.private_subnets_cidr}"]
+  public_subnets               = ["${var.public_subnets_cidr}"]
+  database_subnets             = ["${var.database_subnets_cidr}"]
   create_database_subnet_group = true
   enable_nat_gateway           = true
   enable_dns_support           = true
-
-  tags = "${local.tags}"
+  tags                         = "${local.tags}"
 }
 
 #########################################
@@ -59,4 +56,27 @@ module "ecs_cluster" {
   ecs_max_servers     = "${var.ecs_max_servers}"
   ecs_instance_type   = "${var.ecs_instance_type}"
   public_key_filename = "${var.public_key_filename}"
+}
+
+###################
+# ECS Service: Ping
+###################
+module "ecs_service_ping" {
+  source = "./modules/ecs_service"
+
+  component_name         = "ping"
+  tags                   = "${local.tags}"
+  vpc_id                 = "${module.vpc.vpc_id}"
+  subnet_ids             = "${module.vpc.public_subnets}"
+  ecs_cluster_arn        = "${module.ecs_cluster.ecs_cluster_arn}"
+  ecs_cluster_name       = "${module.ecs_cluster.ecs_cluster_name}"
+  ecs_service_role_arn   = "${module.ecs_cluster.ecs_service_role_arn}"
+  instance_target        = "2"
+  instance_min           = "2"
+  instance_max           = "4"
+  container_port         = 80
+  docker_image           = "nginx:alpine"
+  health_path            = "/"
+  container_cpu_limit    = 128
+  container_memory_limit = 256
 }
