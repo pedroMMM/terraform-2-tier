@@ -12,17 +12,16 @@ resource "aws_key_pair" "key_pair" {
 module "ecs_cluster" {
   source = "github.com/terraform-community-modules/tf_aws_ecs?ref=v5.0.0"
 
-  name = "${format("%s-cluster", var.application_name)}"
-
-  vpc_id    = "${var.vpc_id}"
-  subnet_id = ["${var.subnet_ids}"]
-
-  servers           = "${var.ecs_servers}"
-  min_servers       = "${var.ecs_min_servers}"
-  max_servers       = "${var.ecs_max_servers}"
-  instance_type     = "${var.ecs_instance_type}"
-  key_name          = "${aws_key_pair.key_pair.key_name}"
-  heartbeat_timeout = 30
+  name               = "${format("%s-cluster", var.application_name)}"
+  vpc_id             = "${var.vpc_id}"
+  subnet_id          = ["${var.subnet_ids}"]
+  servers            = "${var.ecs_servers}"
+  min_servers        = "${var.ecs_min_servers}"
+  max_servers        = "${var.ecs_max_servers}"
+  instance_type      = "${var.ecs_instance_type}"
+  key_name           = "${aws_key_pair.key_pair.key_name}"
+  security_group_ids = ["${aws_security_group.cluster_sg.id}"]
+  heartbeat_timeout  = 30
 
   extra_tags = [
     {
@@ -41,6 +40,28 @@ module "ecs_cluster" {
       propagate_at_launch = true
     },
   ]
+}
+
+########################
+# Cluster Security Group
+########################
+resource "aws_security_group" "cluster_sg" {
+  name        = "${format("%s-ECS-cluster", var.application_name)}"
+  description = "${format("SG for the %s ECS cluster instances", var.application_name)}"
+  vpc_id      = "${var.vpc_id}"
+  tags        = "${merge(var.tags, map("Name", "${format("%s-ECS-cluster-SG", var.application_name)}"))}"
+}
+
+#############
+# Egress Rule
+#############
+resource "aws_security_group_rule" "allow_all_out" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.cluster_sg.id}"
 }
 
 ###############################

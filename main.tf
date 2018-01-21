@@ -56,6 +56,31 @@ module "ecs_cluster" {
   ecs_max_servers     = "${var.ecs_max_servers}"
   ecs_instance_type   = "${var.ecs_instance_type}"
   public_key_filename = "${var.public_key_filename}"
+  tags                = "${local.tags}"
+}
+
+################
+# Aurora cluster
+################
+module "aurora_cluster" {
+  source = "./modules/aurora"
+
+  application_name             = "${var.application_name}"
+  vpc_id                       = "${module.vpc.vpc_id}"
+  db_subnet_group              = "${module.vpc.database_subnet_group}"
+  allowed_sg_id                = "${module.ecs_cluster.ecs_cluster_sg}"
+  engine                       = "${var.aurora_engine}"
+  port                         = "${var.aurora_port}"
+  storage_encrypted            = "${var.aurora_storage_encrypted}"
+  username                     = "${var.aurora_master_user}"
+  password                     = "${var.aurora_master_password}"
+  instance_count               = "${var.aurora_instance_count}"
+  instance_type                = "${var.aurora_instance_type}"
+  preferred_backup_window      = "${var.aurora_preferred_backup_window}"
+  preferred_maintenance_window = "${var.aurora_preferred_maintenance_window}"
+  apply_immediately            = "${var.aurora_apply_immediately}"
+  backup_retention_period      = "${var.aurora_backup_retention_period}"
+  tags                         = "${local.tags}"
 }
 
 ###################

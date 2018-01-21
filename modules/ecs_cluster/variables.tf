@@ -3,12 +3,17 @@
 #########
 variable "application_name" {
   description = "The Application Name"
-  default     = "twotier"
+  default     = ""
 }
 
 variable "environment_name" {
   description = "The Environment name"
-  default     = "demo"
+  default     = ""
+}
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  default     = {}
 }
 
 ############
@@ -50,5 +55,5 @@ variable "ecs_instance_type" {
 
 variable "public_key_filename" {
   description = "The EC2 instance public key filename"
-  default     = "~/.ssh/id_rsa.pub"
+  default     = ""
 }
