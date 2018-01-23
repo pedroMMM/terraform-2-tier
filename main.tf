@@ -100,8 +100,8 @@ module "ecs_service_ping" {
   instance_min           = "2"
   instance_max           = "4"
   container_port         = 80
-  docker_image           = "nginx:alpine"
-  health_path            = "/"
+  docker_image           = "pedrommm/simple-ping:latest"
+  health_path            = "/ping.html"
   container_cpu_limit    = 128
   container_memory_limit = 256
 }
